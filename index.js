@@ -56,7 +56,7 @@ async function run() {
         const id = req.params.id;
         const filter = {_id: new ObjectId(id)};
         const options = {upsert: true};
-        const updateJob = req.body
+        const updateJob = req.body;
         const job = {
             $set: {
                 email: updateJob.email,
@@ -69,7 +69,7 @@ async function run() {
                 description: updateJob.description,
             }
         }
-        const result = await jobsCollection.updateOne(filter, options,job);
+        const result = await jobsCollection.updateOne(filter, job, options);
         res.send(result);
     })
 
