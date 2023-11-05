@@ -28,6 +28,7 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
     const jobsCollection = client.db("careerLoomDB").collection("jobs");
+    const bidsCollection = client.db("careerLoomDB").collection("myBids");
 
 
     app.get("/jobs", async(req, res) => {
@@ -80,6 +81,19 @@ async function run() {
         const result = await jobsCollection.deleteOne(query)
         res.send(result);
       });
+
+      // bids
+      app.get("/myBids", async(req, res) => {
+        const cursor = bidsCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.post("/myBids", async(req, res) => {
+        const job = req.body;
+        const result = await bidsCollection.insertOne(job);
+        res.send(result);
+    })
 
 
     await client.db("admin").command({ ping: 1 });
