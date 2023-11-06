@@ -110,6 +110,7 @@ async function run() {
         const job = {
             $set: {
                 status: updateJob.status,
+                statusforRequester: updateJob.statusforRequester,
                 
             }
         }
