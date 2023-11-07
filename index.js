@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
     const jobsCollection = client.db("careerLoomDB").collection("jobs");
     const bidsCollection = client.db("careerLoomDB").collection("myBids");
@@ -138,3 +138,5 @@ app.get('/', (req, res) => {
 app.listen(port, (req, res) => {
     console.log(`listening on ${port}`);
 })
+
+
