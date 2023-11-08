@@ -8,7 +8,11 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port= process.env.PORT || 5000
 
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: [ //'http://localhost:5173',
+  'https://careerloom-89809.web.app',
+  'https://careerloom-89809.firebaseapp.com'
+
+],
   credentials: true,
 }));
 app.use(express.json());
@@ -64,12 +68,21 @@ async function run() {
         res
         .cookie('token', token, {
           httpOnly: true,
-          secure: false, // using http only for that false. if use https then use true
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // using http only for that false. if use https then use true
           
         })
         .send({success: true});
+
+        // res.clearCookie('token', {
+        //   maxAge: 0,
+        //   sameSite: 'none',
+        //   secure: true,
+        // })
+        // .send({success: true});
   
       })
+      
 
 
 
