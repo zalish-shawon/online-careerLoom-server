@@ -1,22 +1,23 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port= process.env.PORT || 5000
 
-
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
 
 
-//careerLoom
-//QRcHOcmfnFXo0bGG
 
-const uri = "mongodb+srv://careerLoom:QRcHOcmfnFXo0bGG@cluster0.hrjn1tt.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.hrjn1tt.mongodb.net/?retryWrites=true&w=majority`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -27,23 +28,23 @@ const client = new MongoClient(uri, {
 });
 
 
-// const verifyToken = async(req, res, next) =>{
+const verifyToken = async(req, res, next) =>{
 
-//     const token = req.cookies.token;
+    const token = req.cookies?.token;
   
-//     if(!token) {
-//       return res.status(401).send({message: 'unathorized access'})
-//     }
+    if(!token) {
+      return res.status(401).send({message: 'unathorized access', code: "401"});
+    }
   
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
-//       if(err) {
-//         return res.status(401).send({message: 'unathorized access'})
-//       }
-//       req.user = decode;
-//       next()
-//     })
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
+      if(err) {
+        return res.status(401).send({message: 'unathorized access', code: "401"})
+      }
+      req.user = decode;
+      next()
+    })
   
-//   }
+  }
 
 
 
@@ -59,7 +60,7 @@ async function run() {
     app.post("/jwt", async (req, res) => {
         const user = req.body;
         // console.log(user);
-        const token = jwt.sign(user,'secret', {expiresIn: '1h'})
+        const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
         res
         .cookie('token', token, {
           httpOnly: true,
@@ -125,7 +126,7 @@ async function run() {
       });
 
       // bids
-      app.get("/myBids", async(req, res) => {
+      app.get("/myBids",verifyToken, async(req, res) => {
         const cursor = bidsCollection.find();
         const result = await cursor.toArray();
         res.send(result);
